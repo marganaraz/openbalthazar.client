@@ -8,7 +8,7 @@ const Init = () => {
   if(user) {
     return <div>
           <span>
-          Welcome back{user.name}!!
+          Welcome back {user.name}!!
           </span>
           <button onClick={(e) => window.location.href='/menu'}>Entrar!</button>
         </div>

@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import { GoogleLogout } from 'react-google-login';
 import { Config } from './Config';
+import {Controlled as CodeMirror} from 'react-codemirror2';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/mode/clike/clike';
 
 const clientId = Config.GoogleAPIKey;
 
@@ -10,6 +13,7 @@ class Menu extends Component {
         super(props);
         this.state = {
             usuario: '',
+            code: '',
           };
     }
 
@@ -20,11 +24,12 @@ class Menu extends Component {
 
     logout = () => {
         // Reidcciono al Home
+        localStorage.setItem("user", null);
         this.props.history.push('/');
     }
 
     render(){
-        const { usuario } = this.state;
+        const { usuario, code } = this.state;
         return(
             <div>
                 <div>
@@ -33,6 +38,23 @@ class Menu extends Component {
                 <div>
                     <GoogleLogout buttonText="Logout" clientId={clientId} onLogoutSuccess={this.logout} />
                 </div>
+                <div>
+                <CodeMirror
+                    value={code}
+                    options={{
+                        mode: 'text/x-csharp',
+                        theme: 'default',
+                        lineNumbers: true
+                      }}
+                    onBeforeChange={(editor, data, value) => {
+                        this.setState({code: value});
+                    }}
+                     onChange={(editor, data, value) => {
+                        this.setState({code: value});
+                     }}
+/>
+                </div>
+                
             </div>
         )
     }
