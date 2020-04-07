@@ -6,8 +6,10 @@ import NotFound from './NotFound';
 import * as serviceWorker from './serviceWorker';
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
 import Menu from './Menu';
+import { SnackbarProvider } from 'notistack';
 
 const routing = (
+  <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'bottom', horizontal: 'right', }}>
     <Router>
       <div>        
         <Switch>
@@ -17,6 +19,7 @@ const routing = (
       </Switch>
       </div>
     </Router>
+    </SnackbarProvider>
   )
   ReactDOM.render(routing, document.getElementById('root'))
 

@@ -1,144 +1,193 @@
 import React, {Component} from 'react';
-import { GoogleLogout } from 'react-google-login';
-import { Config } from './Config';
 import {Controlled as CodeMirror} from 'react-codemirror2';
 import 'codemirror/lib/codemirror.css';
+import './Menu.css';
 import 'codemirror/mode/clike/clike';
-import AppTopBar from './AppTopBar';
-
+import AppTopBar from './bars/AppTopBar';
+import AppLeftBar from './bars/AppLeftBar';
+import { loadFile } from './services/FileService';
+import { scan } from './services/ScannerService';
+import Grid from '@material-ui/core/Grid';
+import { withSnackbar } from 'notistack';
+import { Alert, AlertTitle }  from '@material-ui/lab';
+import Button from '@material-ui/core/Button';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import { makeStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/styles';
-
-const clientId = Config.GoogleAPIKey;
-
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-  
-    return (
-      <Typography
-        component="div"
-        role="tabpanel"
-        hidden={value !== index}
-        id={`vertical-tabpanel-${index}`}
-        aria-labelledby={`vertical-tab-${index}`}
-        {...other}
-      >
-        {value === index && <Box p={3}>{children}</Box>}
-      </Typography>
-    );
-  }
-
-  TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.any.isRequired,
-    value: PropTypes.any.isRequired,
-  };
-
-  function a11yProps(index) {
-    return {
-      id: `vertical-tab-${index}`,
-      'aria-controls': `vertical-tabpanel-${index}`,
-    };
-  }
-
-  const useStyles = makeStyles(theme => ({
-    root: {
-      flexGrow: 1,
-      backgroundColor: theme.palette.background.paper,
-      display: 'flex',
-      height: 224,
-    },
-    tabs: {
-      borderRight: `1px solid ${theme.palette.divider}`,
-    },
-  }));
 
 class Menu extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            usuario: '',
             code: '',
-            value: 0,
+            resultado: [],
+            currentFile: '',
+            editor: null,
+            disabled: false
           };
     }
 
-    componentDidMount() {
+    componentDidMount () {
+        
         var user = JSON.parse(localStorage.getItem("user"));
-        this.setState({usuario: user.name});
+        if(user.lastFile !== '') {
+            loadFile(user.lastFile)
+                .then(response => {
+                    this.setState({
+                        currentFile: user.lastFile
+                    });
+                })
+        }
+    }
+    
+    handleClickVariant = (message, variant) => {
+        // variant could be success, error, warning, info, or default
+        this.props.enqueueSnackbar(message, { variant });
+    };
+
+    loadFile = (path) => {
+        // Llamo a la API para obtener los archivos
+        loadFile(path)
+        .then(response => {  
+            this.setState({  
+                code: response.data,
+                currentFile: path,
+                disabled: false
+            });  
+            // Deberia guardar el ultimo editado
+            var user = JSON.parse(localStorage.getItem("user"));
+
+            user.lastFile = path;
+
+            localStorage.setItem("user", JSON.stringify(user));
+        })
+        .catch(err => {
+            console.log(err); 
+        })
     }
 
-    logout = () => {
-        // Reidcciono al Home
-        localStorage.setItem("user", null);
-        this.props.history.push('/');
+    resetUI = () => {
+        this.setState({
+            currentFile: '',
+            code: '',
+            disabled: true,
+        });
     }
 
-    handleChange = (event, newValue) => {
-        this.setState({value: newValue});
+    analyze = () => {
+        scan(this.state.currentFile, this.state.code)
+        .then(response => {  
+            this.setState({  
+                resultado: response.data  
+            });  
+            console.log(response.data);
+            var count = Object.keys(response.data).length;
+            if(count === 0) this.handleClickVariant('No bugs founds','success');
+            else this.handleClickVariant('Bugs founds, please see Details bar','error');
+        })
+        .catch(err => {
+            console.log(err); 
+        })
+    }
+
+    getFileName = (str) => {
+        if(str == null) return 'undefined.sol';
+        return str.split('\\').pop().split('/').pop();
+    };
+
+    mark(lineNro) {
+        
+        if(this.state.editor) {
+            lineNro--;
+            this.state.editor.markText({line: lineNro, ch: 0}, {line: lineNro, ch: 42}, { css: "background : #ff7"});
+        }
     }
 
     render(){
-        const { usuario, code, value } = this.state;
-        const { classes } = this.props;
-        return(
-            <div>
-                <div>
-                    <AppTopBar />
-                    <h1>{usuario}</h1>
-                    <GoogleLogout buttonText="Logout" clientId={clientId} onLogoutSuccess={this.logout} />
+        const { code, resultado, currentFile, disabled } = this.state;
+        var bugsTree = resultado.map(
+            function iterator( e ) {
+                return(
+                    <div style={{paddingTop: '4px'}}>
+                <Alert severity={e.severity}
+                    action={
+                        <Button color="inherit" size="small" onClick={() => { this.mark(e.lineNumber) }}>
+                          VIEW
+                        </Button>
+                      }
+                      >
+                    <AlertTitle>{e.ruleName}</AlertTitle>
+                    {e.ruleError}
+                </Alert>
                 </div>
-                <div>
-                    <div className={classes.root}>
-                        <Tabs
-                            orientation="vertical"
-                            variant="scrollable"
-                            value={value}
-                            onChange={this.handleChange}
-                            aria-label="Vertical tabs example"
-                            className={classes.tabs}
-                        >
-                            <Tab label="Verify" {...a11yProps(0)} />
-                            <Tab label="Skynet" {...a11yProps(1)} />
-                            <TabPanel value={value} index={0}>
-                                Item One
-                            </TabPanel>
-                            <TabPanel value={value} index={1}>
-                                Item Two
-                            </TabPanel>
-                        </Tabs>
-                    </div>
-                    <div>
-                        
-                        <CodeMirror
+                );
+            },
+            this
+        );
+
+        return(
+             <div style={{flexGrow: 1, height: "100vh"}}>
+                 <Grid container>
+                     <Grid item  xs={12} >
+                         <div style={{height: "12vh"}}>
+                             <AppTopBar />
+                         </div>
+                     </Grid>
+                     <Grid  item  xs={2}>
+                         <div className="panel">
+                         <AppLeftBar 
+                           loadFile={this.loadFile}
+                           resetUI={this.resetUI}
+                           currentFile={currentFile}
+                         ></AppLeftBar>
+                         </div>
+                     </Grid>
+                     <Grid item  xs={7}>
+                          <div style={{width: '98%', margin:'0px', padding:'0px'}}>
+                         <Tabs style={{padding: '3px', margin: '0px', height: '35px', minHeight: '35px'}}
+                            value={0}
+                            indicatorColor="primary"
+                            textColor="primary"                            
+                            >
+                            <Tab style={{padding: '4px', margin: '0px', height: '35px', minHeight: '35px'}} label={this.getFileName(currentFile)} />
+                         </Tabs>
+                         <div> 
+                         <CodeMirror
+                            editorDidMount={editor => { this.setState({ editor: editor });}}
                             value={code}
                             options={{
-                                mode: 'text/x-csharp',
-                                theme: 'default',
-                                lineNumbers: true
-                            }}
-                            onBeforeChange={(editor, data, value) => {
-                                this.setState({code: value});
-                            }}
-                            onChange={(editor, data, value) => {
-                                this.setState({code: value});
-                            }}
-                        />
-                    </div>
-                </div>
-            </div>
+                            autoRefresh: true,
+                            mode: 'text/x-csharp',
+                            theme: 'default fullheight',
+                            lineNumbers: true,
+                            viewportMargin: Infinity,
+                            readOnly: disabled
+                        }}
+                      onBeforeChange={(editor, data, value) => {
+                          this.setState({code: value});
+                      }}
+                      onChange={(editor, data, value) => {
+                          this.setState({code: value});
+                      }}
+                      />
+                         </div>
+                         </div>
+                         
+                     </Grid>
+                     <Grid item xs={3}>
+                         <div className="panel">
+                            <div>
+                                <Button fullWidth onClick={this.analyze} variant="outlined" color="primary">check it!</Button>
+                            </div>
+                            <div>
+                                {bugsTree}
+                            </div>
+                         </div>
+                     </Grid>
+                 </Grid>
+             </div>
         )
     }
 }
 
-Menu.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
-
-export default withStyles(useStyles)(Menu);
+export default withSnackbar(Menu);

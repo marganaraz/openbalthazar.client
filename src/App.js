@@ -1,17 +1,11 @@
 import React from 'react';
 import './App.css';
-import Login from './Login';
+import Login from './auth/Login';
 
 const Init = () => {
   var user = JSON.parse(localStorage.getItem("user"));
-  console.log(user);
   if(user) {
-    return <div>
-          <span>
-          Welcome back {user.name}!!
-          </span>
-          <button onClick={(e) => window.location.href='/menu'}>Entrar!</button>
-        </div>
+    window.location.href='/menu';
   }
   else {
     return <Login />
