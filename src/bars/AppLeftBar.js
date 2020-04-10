@@ -10,13 +10,11 @@ import Grid from '@material-ui/core/Grid';
 import SolidityIcon from './../images/solidity.png';
 import VyperIcon from './../images/vyper.png';
 import NewFileDialog from './NewFileDialog';
+import UploadFileDialog from './UploadFileDialog';
 import { getFilesByUser, deleteFile } from './../services/FileService';
-import CloudUpload from '@material-ui/icons/CloudUpload';
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles((theme) => ({
   demo: {
@@ -54,10 +52,6 @@ export default function AppLeftBar(props) {
     useEffect(() => {
       refresh(); // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    // const init = useCallback(() => {
-    //   refresh();
-    // }, []);
 
     const handleClickVariant = (message, variant) => {
       // variant could be success, error, warning, info, or default
@@ -126,16 +120,7 @@ export default function AppLeftBar(props) {
         <Grid container>
           <Grid item xs={12}>
             <div style={{textAlign: 'center'}}>
-              
-                  <Tooltip title="Upload File">
-                  <Button style={{margin: '1px'}}
-                    variant="contained"
-                    color="primary"
-                    startIcon={<CloudUpload />}
-                    >
-                    UPLOAD
-                    </Button>
-                    </Tooltip>
+                  <UploadFileDialog refresh={refresh} />
                   <NewFileDialog refresh={refresh} />
             </div>
           </Grid>

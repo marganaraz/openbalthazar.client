@@ -8,6 +8,7 @@ import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Avatar from '@material-ui/core/Avatar';
 import Menu from '@material-ui/core/Menu';
+import Button from '@material-ui/core/Button';
 import MenuIcon from '@material-ui/icons/Menu';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
@@ -22,6 +23,7 @@ const useStyles = makeStyles(theme => ({
     },
     title: {
       display: 'none',
+      paddingRight: '10px',
       [theme.breakpoints.up('sm')]: {
         display: 'block',
       },
@@ -158,6 +160,10 @@ const useStyles = makeStyles(theme => ({
             <Typography className={classes.title} variant="h6" noWrap>
               OpenBalthazar
             </Typography>
+            
+            
+            <Button color="inherit" onClick={() => {window.location.href = '/menu';}}>Scan My Code</Button>
+            <Button color="inherit" onClick={() => {window.location.href = '/etherscan';}}>Scan Blockchain</Button>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
               <IconButton aria-label="show 4 new mails" color="inherit">

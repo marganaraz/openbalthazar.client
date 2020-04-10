@@ -76,3 +76,26 @@ export const deleteFile = (filename) => {
     }
   )
 };
+
+////////////////////////////////////////////////////
+// Llama al metodo New de la API
+////////////////////////////////////////////////////
+export const uploadFile = (file) => {
+
+  const token = JSON.parse(localStorage.getItem("user")).token;
+
+  var bodyFormData = new FormData();
+  bodyFormData.set('file', file);
+
+  // Llamo a la API para subir un archivo
+  return axios.post(Config.OpenBalthazarAPI + "/file/upload", bodyFormData,
+    { 
+      headers: 
+      {
+        'Content-Type': 'multipart/form-data',  
+        'Authorization': 'Bearer ' + token
+          
+      } 
+    }
+  )
+};

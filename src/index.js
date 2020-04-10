@@ -6,6 +6,7 @@ import NotFound from './NotFound';
 import * as serviceWorker from './serviceWorker';
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
 import Menu from './Menu';
+import Etherscan from './Etherscan';
 import { SnackbarProvider } from 'notistack';
 
 const routing = (
@@ -15,6 +16,7 @@ const routing = (
         <Switch>
         <Route exact path="/" component={App} />
         <Route path="/menu" component={Menu} />
+        <Route path="/etherscan" component={Etherscan} />
         <Route component={NotFound} />
       </Switch>
       </div>
