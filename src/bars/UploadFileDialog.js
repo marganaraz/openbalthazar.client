@@ -9,6 +9,7 @@ import { uploadFile } from '../services/FileService';
 import Tooltip from '@material-ui/core/Tooltip';
 import Box from '@material-ui/core/Box';
 import CloudUpload from '@material-ui/icons/CloudUpload';
+import IconButton from '@material-ui/core/IconButton';
 
 export default function UploadFileDialog(props) {
   const [open, setOpen] = React.useState(false);
@@ -53,14 +54,9 @@ export default function UploadFileDialog(props) {
   return (
     <>
       <Tooltip title="Upload File">
-      <Button style={{margin: '1px'}}
-            variant="contained"
-            color="primary"
-            startIcon={<CloudUpload />}
-            onClick={handleClickOpen}
-            >
-            UPLOAD
-            </Button>
+        <IconButton color="primary" onClick={handleClickOpen} component="span">
+          <CloudUpload />
+        </IconButton>
       </Tooltip>
       
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">

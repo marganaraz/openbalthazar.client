@@ -1,0 +1,16 @@
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.paper {
+    /*backgroundColor: theme.palette.background.paper,
+    
+    //boxShadow: theme.shadows[5],
+    //padding: theme.spacing(2, 4, 3),*/
+    background-color: white;
+    padding: 10px;
+    box-shadow: 5px;
+    border: '2px solid #000';
+  }

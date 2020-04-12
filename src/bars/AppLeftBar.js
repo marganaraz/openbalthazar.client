@@ -11,10 +11,13 @@ import SolidityIcon from './../images/solidity.png';
 import VyperIcon from './../images/vyper.png';
 import NewFileDialog from './NewFileDialog';
 import UploadFileDialog from './UploadFileDialog';
+import ImportFileDialog from './ImportFileDialog';
 import { getFilesByUser, deleteFile } from './../services/FileService';
 import DeleteIcon from '@material-ui/icons/Delete';
+import GitHubIcon from '@material-ui/icons/GitHub';
 import IconButton from '@material-ui/core/IconButton';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles((theme) => ({
   demo: {
@@ -122,6 +125,12 @@ export default function AppLeftBar(props) {
             <div style={{textAlign: 'center'}}>
                   <UploadFileDialog refresh={refresh} />
                   <NewFileDialog refresh={refresh} />
+                  <ImportFileDialog refresh={refresh} />
+                  <Tooltip title="Import File from GitHub">
+                    <IconButton color="primary" onClick={() => { alert('GitHub not implemented yet.')}} component="span">
+                      <GitHubIcon />
+                    </IconButton>
+                  </Tooltip>
             </div>
           </Grid>
           <Grid item xs={12}>

@@ -10,6 +10,8 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import MailIcon from '@material-ui/icons/Mail';
 
 const clientId = Config.GoogleAPIKey;
 
@@ -56,8 +58,9 @@ export default function Login () {
   const classes = useStyles();
 
   return (
-    <div style={{ display:'flex', justifyContent:'center', paddingTop:'40px' }}>
-    <Card className={classes.root}>
+    <>
+    <div style={{ display:'flex', justifyContent:'center', paddingTop:'20px' }}>
+      <Card className={classes.root}>
       <CardActionArea style={{justifyContent:'center'}}>
         <CardMedia
           className={classes.media}
@@ -77,8 +80,18 @@ export default function Login () {
       </CardActionArea>
       <CardActions style={{justifyContent:'center'}}>
         <GoogleLogin theme="dark" onSuccess={success} onFailure={error} clientId={clientId} />
+        
       </CardActions>
     </Card>
     </div>
+    <div style={{display: 'flex', justifyContent:'center', padding: '4px'}}>
+      <div style={{display: 'flex', justifyContent:'center', padding: '4px'}}>
+        <TwitterIcon color="primary" fontSize="small" /><Typography style={{fontSize: '6'}} color="primary">@mauro_arganaraz</Typography>
+      </div>
+      <div style={{display: 'flex', justifyContent:'center', padding: '4px'}}>
+        <MailIcon color="primary" fontSize="small" /><Typography style={{fontSize: '6'}} color="primary">marganaraz@gmail.com</Typography>
+      </div>
+  </div>
+  </>
   );
 }

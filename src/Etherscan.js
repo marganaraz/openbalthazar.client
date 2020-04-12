@@ -10,6 +10,11 @@ import Chart from 'react-apexcharts'
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import Modal from '@material-ui/core/Modal';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Backdrop from '@material-ui/core/Backdrop';
+import Fade from '@material-ui/core/Fade';
+import './Etherscan.css';
 
 class Etherscan extends Component {
 
@@ -18,6 +23,7 @@ class Etherscan extends Component {
         this.state = {
             filesWithErrors: [],
             files: 0,
+            open: false,
             filesErrors: '',
             series: [0, 0],
             seriesBar: [{
@@ -79,33 +85,36 @@ class Etherscan extends Component {
     };
 
     analyze = () => {
-        scanAll()
-        .then(response => {  
-            console.log(response.data);
-            this.setState({  
-                files: response.data.files - response.data.filesErrors,
-                filesErrors: response.data.filesErrors,
-                filesWithErrors: response.data.filesWithErrors,
-                series: [response.data.files, response.data.filesErrors],
-                seriesBar: [{
-                  name: 'series-1',
-                  data: [response.data.rules.TxOriginRule, response.data.rules.ReentrancyRule]
-                }]
-            });  
+        this.setState({ open: true}, () => {
+          scanAll()
+          .then(response => {  
+              console.log(response.data);
+              this.setState({  
+                  files: response.data.files - response.data.filesErrors,
+                  filesErrors: response.data.filesErrors,
+                  filesWithErrors: response.data.filesWithErrors,
+                  series: [response.data.files, response.data.filesErrors],
+                  seriesBar: [{
+                    name: 'series-1',
+                    data: [response.data.rules.TxOriginRule, response.data.rules.ReentrancyRule]
+                  }],
+                  open: false
+              });  
 
-            localStorage.setItem("etherscan", JSON.stringify(response.data));
-            
-            var count = Object.keys(response.data).length;
-            if(count === 0) this.handleClickVariant('No bugs founds','success');
-            else this.handleClickVariant('Bugs founds, please see Details bar','error');
-        })
-        .catch(err => {
-            console.log(err); 
-        })
+              localStorage.setItem("etherscan", JSON.stringify(response.data));
+              
+              var count = Object.keys(response.data).length;
+              if(count === 0) this.handleClickVariant('No bugs founds','success');
+              else this.handleClickVariant('Bugs founds, please see Details bar','error');
+          })
+          .catch(err => {
+              console.log(err); 
+          })
+        });
     }
 
     render(){
-        const { filesWithErrors, files, filesErrors } = this.state;
+        const { filesWithErrors, open, filesErrors } = this.state;
         var filesTree = filesWithErrors.map(
             function iterator( file ) {
     
@@ -149,6 +158,29 @@ class Etherscan extends Component {
                     </div>
                      </Grid>
                  </Grid>
+                 <Modal
+                  aria-labelledby="transition-modal-title"
+                  aria-describedby="transition-modal-description"
+                  className="modal"
+                  open={open}
+                  onClose={() => this.setState({open: false})}
+                  closeAfterTransition
+                  BackdropComponent={Backdrop}
+                  BackdropProps={{
+                    timeout: 500,
+                  }}
+                >
+                  <Fade in={open}>
+                    <div className="paper">
+                      <h2 id="transition-modal-title">El proceso se encuentra en marcha!</h2>
+                      <p id="transition-modal-description">Este proceso puede demorar varios minutos, por favor tenga paciencia!.</p>
+                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                        <CircularProgress />
+                      </div>
+                      
+                    </div>
+                  </Fade>
+                </Modal>
              </div>
         )
     }

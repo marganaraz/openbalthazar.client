@@ -6,14 +6,14 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import AddBoxIcon from '@material-ui/icons/AddBox';
-import { newFile } from './../services/FileService';
+import CodeIcon from '@material-ui/icons/Code';
+import { importFile } from '../services/FileService';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 
-export default function NewFileDialog(props) {
+export default function ImportFileDialog(props) {
   const [open, setOpen] = React.useState(false);
-  const [filename, setFilename] = React.useState('');
+  const [address, setAddress] = React.useState('');
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -24,7 +24,7 @@ export default function NewFileDialog(props) {
   };
 
   const handleCreate = () => {
-    newFile(filename)
+    importFile(address)
     .then(response => {
       setOpen(false);
       props.refresh();  
@@ -36,27 +36,27 @@ export default function NewFileDialog(props) {
 
   return (
     <>
-      <Tooltip title="Create New File">
+      <Tooltip title="Import File from Etherscan">
         <IconButton color="primary" onClick={handleClickOpen} component="span">
-          <AddBoxIcon />
+          <CodeIcon />
         </IconButton>
       </Tooltip>
       
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Add New File</DialogTitle>
+        <DialogTitle id="form-dialog-title">Import File from Etherscan</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            To add a new file, please enter filename with extension.
+            To import a file from Etherscan, please enter contract's address.
           </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
-            id="filename"
-            label="Filename"
+            id="address"
+            label="Address"
             type="text"
             fullWidth
             required
-            onChange={(e) => setFilename(e.target.value)}
+            onChange={(e) => setAddress(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -64,7 +64,7 @@ export default function NewFileDialog(props) {
             Cancel
           </Button>
           <Button onClick={handleCreate} color="primary">
-            Create
+            Import
           </Button>
         </DialogActions>
       </Dialog>

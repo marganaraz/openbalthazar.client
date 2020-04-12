@@ -99,3 +99,22 @@ export const uploadFile = (file) => {
     }
   )
 };
+
+////////////////////////////////////////////////////
+// Llama al metodo Import de la API
+////////////////////////////////////////////////////
+export const importFile = (address) => {
+
+  const token = JSON.parse(localStorage.getItem("user")).token;
+
+  // Llamo a la API para crear un archivo
+  return axios.get(Config.OpenBalthazarAPI + "/file/import?address=" + address,
+    { 
+      headers: 
+      {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+      } 
+    }
+  )
+};
