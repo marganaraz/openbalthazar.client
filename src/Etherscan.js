@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Chart from 'react-apexcharts'
 import List from '@material-ui/core/List';
+import Collapse from '@material-ui/core/Collapse';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Modal from '@material-ui/core/Modal';
@@ -27,7 +28,7 @@ class Etherscan extends Component {
             filesErrors: '',
             series: [0, 0],
             seriesBar: [{
-              name: 'series-1',
+              name: 'Vulnerabilities founds',
               data: []
             }],
             optionsPie: {
@@ -35,7 +36,7 @@ class Etherscan extends Component {
                 width: 380,
                 type: 'pie',
               },
-              labels: ['Sin Error', 'Con Error'],
+              labels: ['Not vulnerable', 'Vulnerable'],
               responsive: [{
                 breakpoint: 480,
                 options: {
@@ -53,28 +54,36 @@ class Etherscan extends Component {
                 id: 'apexchart-example'
               },
               xaxis: {
-                categories: ['TxOriginRule', 'ReentrancyRule']
+                categories: ['Reentrancy', 'TxOrigin']
+              },
+              plotOptions: {
+                bar: {
+                  horizontal: true,
+                }
               }
             },
           };
     }
     
     componentDidMount() {
+      
+      // Busco en el disco si hay una copia actualizada
       const etherscan = JSON.parse(localStorage.getItem("etherscan"));
 
+      // Si esta la copia la actualizo en UI
       if(etherscan) {
-        console.log("levanto de disco")
-        console.log(etherscan.rules);
+
         this.setState({  
           files: etherscan.files - etherscan.filesErrors,
           filesErrors: etherscan.filesErrors,
           filesWithErrors: etherscan.filesWithErrors,
-          series: [etherscan.files, etherscan.filesErrors],
+          series: [etherscan.files - etherscan.filesErrors, etherscan.filesErrors],
           seriesBar: [{
-            name: 'series-1',
-            data: [etherscan.rules.TxOriginRule, etherscan.rules.ReentrancyRule]
+            name: 'Vulnerabilities founds',
+            data: [etherscan.rules.ReentrancyRule, etherscan.rules.TxOriginRule]
           }]
-      }); 
+        }); 
+
       }
       
     }
@@ -90,13 +99,13 @@ class Etherscan extends Component {
           .then(response => {  
               console.log(response.data);
               this.setState({  
-                  files: response.data.files - response.data.filesErrors,
+                  files: (response.data.files - response.data.filesErrors),
                   filesErrors: response.data.filesErrors,
                   filesWithErrors: response.data.filesWithErrors,
-                  series: [response.data.files, response.data.filesErrors],
+                  series: [(response.data.files - response.data.filesErrors), response.data.filesErrors],
                   seriesBar: [{
-                    name: 'series-1',
-                    data: [response.data.rules.TxOriginRule, response.data.rules.ReentrancyRule]
+                    name: 'Vulnerabilities founds',
+                    data: [response.data.rules.ReentrancyRule, response.data.rules.TxOriginRule]
                   }],
                   open: false
               });  
@@ -113,19 +122,46 @@ class Etherscan extends Component {
         });
     }
 
+    handleClick = e => {
+      this.setState({ [e]: !this.state[e] });
+  };
+
     render(){
         const { filesWithErrors, open, filesErrors } = this.state;
         var filesTree = filesWithErrors.map(
             function iterator( file ) {
     
                 return(
-                    <ListItem dense style={{padding:'0px', margin:'0px'}} key={file.filename}>
+                  <div key={file.filename}>
+                    <ListItem button dense style={{padding:'0px', margin:'0px'}} 
+                      key={file.filename}
+                      onClick={this.handleClick.bind(this, file.filename )}
+                      >
                       <ListItemText
                         primary={file.filename}
                         secondary={"Errors: " + file.errors + " Warnings: " + file.warnings}
                       />
-
+                      
                     </ListItem>
+                    <Collapse in={this.state[file.filename]} timeout="auto" unmountOnExit>
+                    <Typography style={{fontSize: '12px', fontWeight: 'bold'}}>Errors Lines</Typography>
+                      <List component="div" disablePadding>
+
+                          {file.errorsList.map( error => {
+                              return (
+                                <ListItem dense style={{padding:'0px', margin:'0px'}} key={error.line}>
+                                <ListItemText primaryTypographyProps={{ style: {color: 'red', fontSize: '12px'}}} primary={error.line + ": " + error.rule}
+                                  secondary={null}
+                                />
+                                
+                              </ListItem>
+                              )
+                          })}
+                        
+                      </List>
+                      <Button color="primary">Open File</Button>
+                  </Collapse>
+                  </div>
                 );
             },
             this
@@ -144,14 +180,15 @@ class Etherscan extends Component {
                      </Grid>
                      <Grid item  xs={6}>
                        <div style={{textAlign: 'center', padding: '10px'}}>
-                      <Typography>Porcentaje de Smart Contracts con Vulnerabilidades</Typography>
+                      <Typography>Percentage of Smart Contracts with Vulnerabilities</Typography>
                      <Chart options={this.state.optionsPie} series={this.state.series} type="pie" width={500} height={220} />
-                     <Typography>Cantidad de vulnerabilidades por Reglas de Analisis</Typography>
+                     <Typography>Ranking of Vulnerabilities Found</Typography>
                      <Chart options={this.state.optionsBar} series={this.state.seriesBar} type="bar" width={500} height={220} />
                      </div>
                      </Grid>
                      <Grid item  xs={6}>
                      <div>
+                      <Typography>List of Smart Contracts with Vulnerabilities</Typography>
                         <List dense={true}>
                         {filesTree}
                         </List>

@@ -52,7 +52,8 @@ class Menu extends Component {
             this.setState({  
                 code: response.data,
                 currentFile: path,
-                disabled: false
+                disabled: false,
+                resultado: []
             });  
             // Deberia guardar el ultimo editado
             var user = JSON.parse(localStorage.getItem("user"));
@@ -98,8 +99,16 @@ class Menu extends Component {
     mark(lineNro) {
         
         if(this.state.editor) {
+            // Resto una unidad
             lineNro--;
+
+            // Marco el texto
             this.state.editor.markText({line: lineNro, ch: 0}, {line: lineNro, ch: 42}, { css: "background : #ff7"});
+            
+            // Posiciono el cursor en el medio de la pantalla
+            var t = this.state.editor.charCoords({line: lineNro, ch: 0}, "local").top; 
+            var middleHeight = this.state.editor.getScrollerElement().offsetHeight / 2; 
+            this.state.editor.scrollTo(null, t - middleHeight - 5); 
         }
     }
 
