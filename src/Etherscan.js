@@ -127,7 +127,7 @@ class Etherscan extends Component {
   };
 
     render(){
-        const { filesWithErrors, open, filesErrors } = this.state;
+        const { filesWithErrors, open } = this.state;
         var filesTree = filesWithErrors.map(
             function iterator( file ) {
     
